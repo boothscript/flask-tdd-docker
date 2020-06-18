@@ -1,0 +1,5 @@
+{
+    "python.venvPath": "~/pyscript/flask-tdd-docker/env",
+    "python.pythonPath": "python3.8",
+    "python.formatting.provider": "autopep8"
+}
