@@ -16,5 +16,12 @@ def recreate_db():
     db.session.commit()
 
 
+@cli.command('seed_db')
+def seed_db():
+    db.session.add(User(username='micheal', email='hermanmu@gmail.com'))
+    db.session.add(User(username='michealherman', email='micheal@herman.org'))
+    db.session.commit()
+
+
 if __name__ == '__main__':
     cli()
