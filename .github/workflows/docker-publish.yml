@@ -33,7 +33,7 @@ jobs:
           POSTGRES_PASSWORD: runner
           DATABASE_TEST_URL: postgress://runner:runner@postgres:5432/users
         run: |
-          docker-compose up
+          docker-compose up --build
           docker exec users pytest "projects/tests" -p no:warnings
           docker exec users flake8 project
           docker exec users black project --check
