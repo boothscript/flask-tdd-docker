@@ -40,7 +40,7 @@ jobs:
           docker-compose exec usersisort project/**/*.py --check-only
         
       - name: Logs
-        run: docker logs 
+        run: docker logs users-db
        
   # Push image to GitHub Packages.
   # See also https://docs.docker.com/docker-hub/builds/
