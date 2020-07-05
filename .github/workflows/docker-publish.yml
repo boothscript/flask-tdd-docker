@@ -33,7 +33,7 @@ jobs:
           POSTGRES_PASSWORD: runner
           DATABASE_TEST_URL: postgress://runner:runner@postgres:5432/users
         run: |
-          docker-compose up -f docker-compose.ci.yml --build
+          docker-compose -f docker-compose.ci.yml up -d --build
           docker-compose exec users pytest "projects/tests" -p no:warnings
           docker-compose exec users flake8 project
           docker-compose exec users black project --check
@@ -53,7 +53,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build . --file Dockerfile,prod --tag $IMAGE_NAME
+        run: docker build . --file Dockerfile.prod --tag $IMAGE_NAME
 
       - name: Log into registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
