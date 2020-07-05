@@ -33,12 +33,14 @@ jobs:
           POSTGRES_PASSWORD: runner
           DATABASE_TEST_URL: postgress://runner:runner@postgres:5432/users
         run: |
-          docker-compose -f docker-compose.ci.yml . up -d --build
+          docker-compose -f docker-compose.ci.yml up -d --build
           docker-compose exec users pytest "projects/tests" -p no:warnings
           docker-compose exec users flake8 project
           docker-compose exec users black project --check
           docker-compose exec usersisort project/**/*.py --check-only
         
+        - name: Logs
+          run: docker logs 
        
   # Push image to GitHub Packages.
   # See also https://docs.docker.com/docker-hub/builds/
