@@ -4,10 +4,10 @@ from project import create_app, db
 from project.api.models import User
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def test_app():
     app = create_app()
-    app.config.from_object('project.config.TestingConfig')
+    app.config.from_object("project.config.TestingConfig")
     with app.app_context():
         yield app
 
@@ -27,4 +27,5 @@ def add_user():
         db.session.add(user)
         db.session.commit()
         return user
+
     return _add_user
