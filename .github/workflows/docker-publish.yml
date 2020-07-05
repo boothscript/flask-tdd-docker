@@ -33,11 +33,11 @@ jobs:
           POSTGRES_PASSWORD: runner
           DATABASE_TEST_URL: postgress://runner:runner@postgres:5432/users
         run: |
-          docker-compose up --build
-          docker exec users pytest "projects/tests" -p no:warnings
-          docker exec users flake8 project
-          docker exec users black project --check
-          docker exec usersisort project/**/*.py --check-only
+          docker-compose up -f docker-compose.ci.yml --build
+          docker-compose exec users pytest "projects/tests" -p no:warnings
+          docker-compose exec users flake8 project
+          docker-compose exec users black project --check
+          docker-compose exec usersisort project/**/*.py --check-only
         
        
   # Push image to GitHub Packages.
