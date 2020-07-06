@@ -79,3 +79,25 @@ jobs:
 
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+
+  deploy:
+    needs: [test, push]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy to heroku
+        env:
+          HEROKU_APP_NAME: tranquil-virgin-islands-52966 
+          HEROKU_REGISTRY_IMAGE: registry.heroku.com/tranquil-virgin-islands-52966/web
+          HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
+        run: |
+          apk add --no-cache curl
+          chmod +x ./release.sh
+          docker build --tag ${HEROKU_REGISTRY_IMAGE} --file ./Dockerfile.prod "."
+          docker login -u _ -p ${{secrets.HEROKU_API_KEY}} registry.heroku.com
+          docker push ${HEROKU_REGISTRY_IMAGE}
+          ./release.sh
+      
+
+    
