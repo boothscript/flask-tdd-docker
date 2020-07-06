@@ -92,7 +92,7 @@ jobs:
           HEROKU_REGISTRY_IMAGE: registry.heroku.com/tranquil-virgin-islands-52966/web
           HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
         run: |
-          apt install --no-install curl
+          apt install curl
           chmod +x ./release.sh
           docker build --tag ${HEROKU_REGISTRY_IMAGE} --file ./Dockerfile.prod "."
           docker login -u _ -p ${{secrets.HEROKU_API_KEY}} registry.heroku.com
