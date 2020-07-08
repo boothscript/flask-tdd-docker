@@ -14,111 +14,128 @@ on:
   pull_request:
 
 env:
-  # TODO: Change variable to your image's name.
   IMAGE_NAME: flask-tdd-docker
 
 jobs:
   # Run tests.
   # See also https://docs.docker.com/docker-hub/builds/automated-testing/
-  test:
+  build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8]
-
-    services:
-      postgres:
-        image: postgres
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-
-
-
+    
     steps:
       - uses: actions/checkout@v2
-
-      - name: Setup python
-        uses: actions/setup-python@v2
-        with: 
-          python-version: ${{ matrix.python-version}}
-
-      - name: Run tests
-        env:
-          POSTGRES_DB: users
-          POSTGRES_USER: runner
-          POSTGRES_PASSWORD: runner
-          DATABASE_TEST_URL: postgress://runner:runner@postgres:5432/users
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install black flake8 isort pytest
-          pytest "project/tests" -p no:warnings
-          flake8 project
-          black project --check
-          isort project/**/*.py --check-only
-          
-        
-       
-  # Push image to GitHub Packages.
-  # See also https://docs.docker.com/docker-hub/builds/
-  push:
-    # Ensure test job passes before pushing image.
-    needs: test
-
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Build image
-        run: docker build . --file Dockerfile.prod --tag $IMAGE_NAME
 
       - name: Log into registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
-      - name: Push image
+      - name: Pull previously published image
+        run: docker pull docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME || true
+      - name: Build and tag new image
         run: |
-          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+          docker build --cache-from docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME:latest --tag $IMAGE_NAME --file ./Dockerfile.prod .
+          docker push docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME:latest 
+
+
+
+  # test:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       python-version: [3.8]
+
+  #   services:
+  #     postgres:
+  #       image: postgres
+  #       ports:
+  #         - 5432:5432
+  #       env:
+  #         POSTGRES_USER: postgres
+  #         POSTGRES_PASSWORD: postgres
+
+
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Setup python
+  #       uses: actions/setup-python@v2
+  #       with: 
+  #         python-version: ${{ matrix.python-version}}
+
+  #     - name: Run tests
+  #       env:
+  #         POSTGRES_DB: users
+  #         POSTGRES_USER: runner
+  #         POSTGRES_PASSWORD: runner
+  #         DATABASE_TEST_URL: postgress://runner:runner@postgres:5432/users
+  #       run: |
+  #         pip install --upgrade pip
+  #         pip install -r requirements.txt
+  #         pip install black flake8 isort pytest
+  #         pytest "project/tests" -p no:warnings
+  #         flake8 project
+  #         black project --check
+  #         isort project/**/*.py --check-only
           
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        
+       
+  # # Push image to GitHub Packages.
+  # # See also https://docs.docker.com/docker-hub/builds/
+  # push:
+  #   # Ensure test job passes before pushing image.
+  #   needs: test
 
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push'
 
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
+  #     - name: Build image
+  #       run: docker build . --file Dockerfile.prod --tag $IMAGE_NAME
 
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
+  #     - name: Log into registry
+  #       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+  #     - name: Push image
+  #       run: |
+  #         IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+          
+  #         # Change all uppercase to lowercase
+  #         IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
-  deploy:
-    needs: [test, push]
-    runs-on: ubuntu-latest
+  #         # Strip git ref prefix from version
+  #         VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
-    steps:
-      - uses: actions/checkout@v2
-      - name: Deploy to heroku
-        env:
-          HEROKU_APP_NAME: tranquil-virgin-islands-52966 
-          HEROKU_REGISTRY_IMAGE: registry.heroku.com/tranquil-virgin-islands-52966/web
-          HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
-        run: |
-          chmod +x ./release.sh
-          docker build --tag ${HEROKU_REGISTRY_IMAGE} --file ./Dockerfile.prod "."
-          docker login -u _ -p ${{secrets.HEROKU_API_KEY}} registry.heroku.com
-          docker push ${HEROKU_REGISTRY_IMAGE}
-          ./release.sh
+  #         # Strip "v" prefix from tag name
+  #         [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+  #         # Use Docker `latest` tag convention
+  #         [ "$VERSION" == "master" ] && VERSION=latest
+
+  #         echo IMAGE_ID=$IMAGE_ID
+  #         echo VERSION=$VERSION
+
+  #         docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+  #         docker push $IMAGE_ID:$VERSION
+
+  # deploy:
+  #   needs: [test, push]
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Deploy to heroku
+  #       env:
+  #         HEROKU_APP_NAME: tranquil-virgin-islands-52966 
+  #         HEROKU_REGISTRY_IMAGE: registry.heroku.com/tranquil-virgin-islands-52966/web
+  #         HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
+  #       run: |
+  #         chmod +x ./release.sh
+  #         docker build --tag ${HEROKU_REGISTRY_IMAGE} --file ./Dockerfile.prod "."
+  #         docker login -u _ -p ${{secrets.HEROKU_API_KEY}} registry.heroku.com
+  #         docker push ${HEROKU_REGISTRY_IMAGE}
+  #         ./release.sh
       
 
     
