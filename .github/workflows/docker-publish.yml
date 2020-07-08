@@ -40,19 +40,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
-
-    strategy:
-      matrix:
-        python-version: [3.8]
-
-
-
-
-
     steps:
       - uses: actions/checkout@v2
 
-      - name: Log into registry and pull latest image
+      - name: Log into registry
       run: |
         echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
         docker pull docker.pkg.github.com/${{ github.repository }}/flask-tdd-docker:latest
