@@ -31,7 +31,7 @@ jobs:
         run: docker pull docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME || true
       - name: Build and tag new image
         run: |
-          docker build --cache-from docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME:latest --tag $IMAGE_NAME --file ./Dockerfile.prod .
+          docker build --cache-from docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME:latest --tag $IMAGE_NAME --file ./Dockerfile.prod --build-arg SECRET_KEY=$SECRET_KEY .
           docker push docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME:latest 
 
 
