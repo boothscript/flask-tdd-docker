@@ -20,11 +20,13 @@ def add_user(username, email):
     db.session.commit()
     return user
 
+
 def update_user(user, username, email):
     user.username = username
     user.email = email
     db.session.commit()
     return user
+
 
 def delete_user(user):
     db.session.delete(user)

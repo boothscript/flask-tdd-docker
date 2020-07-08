@@ -31,7 +31,7 @@ class UsersList(Resource):
 
     @api.marshal_with(user, as_list=True)
     def get(self):
-        return User.query.all(), 200
+        return get_all_users()
 
     @api.expect(user, validate=True)
     def post(self):
