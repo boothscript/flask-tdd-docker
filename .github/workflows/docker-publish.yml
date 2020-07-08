@@ -39,7 +39,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    container: docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME:latest
+    container: docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
 
     strategy:
       matrix:
