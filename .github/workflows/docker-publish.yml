@@ -17,8 +17,7 @@ env:
   IMAGE_NAME: flask-tdd-docker
 
 jobs:
-  # Run tests.
-  # See also https://docs.docker.com/docker-hub/builds/automated-testing/
+
   build:
     runs-on: ubuntu-latest
     
@@ -40,30 +39,23 @@ jobs:
   test:
     needs: build
     runs-on: ubuntu-latest
-    container: docker.pkg.github.com/${{ github.repository }}/flask-tdd-docker:latest
+
 
     strategy:
       matrix:
         python-version: [3.8]
 
-    services:
-      postgres:
-        image: postgres
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+
 
 
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup python
-        uses: actions/setup-python@v2
-        with: 
-          python-version: ${{ matrix.python-version}}
+      - name: Log into registry and pull latest image
+      run: |
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+        docker pull docker.pkg.github.com/${{ github.repository }}/flask-tdd-docker:latest
 
       - name: Run tests
         env:
@@ -72,13 +64,14 @@ jobs:
           POSTGRES_PASSWORD: runner
           DATABASE_TEST_URL: postgres://runner:runner@postgres:5432/users
         run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install black flake8 isort pytest
-          pytest "project/tests" -p no:warnings
-          flake8 project
-          black project --check
-          isort project/**/*.py --check-only
+          docker-compose up -d
+          docker-compose exec users pip install --upgrade pip
+          docker-compose exec users pip install -r requirements.txt
+          docker-compose exec users pip install black flake8 isort pytest
+          docker-compose exec users pytest "project/tests" -p no:warnings
+          docker-compose exec users flake8 project
+          docker-compose exec users black project --check
+          docker-compose exec users isort project/**/*.py --check-only
           
         
        
