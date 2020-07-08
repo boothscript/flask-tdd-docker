@@ -11,7 +11,9 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements.txt .
-RUN pip install -r requirements.txt
+COPY ./requirements-dev.txt .
+
+RUN pip install -r requirements-dev.txt
 
 COPY ./entrypoint.sh /usr/src/app/entrypoint.sh
 RUN chmod +x /usr/src/app/entrypoint.sh
