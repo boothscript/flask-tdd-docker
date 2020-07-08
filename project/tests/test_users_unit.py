@@ -79,8 +79,9 @@ def test_single_user(test_app, monkeypatch):
             "id": 1,
             "username": "jeff",
             "email": "jeff@testdriven.io",
-            "created_date": datetime.now()
+            "created_date": datetime.now(),
         }
+
     monkeypatch.setattr(project.api.users, "get_user_by_id", mock_get_user_by_id)
 
     client = test_app.test_client()
@@ -94,6 +95,7 @@ def test_single_user(test_app, monkeypatch):
 def test_single_user_incorrect_id(test_app, monkeypatch):
     def mock_get_user_by_id(user_id):
         return None
+
     monkeypatch.setattr(project.api.users, "get_user_by_id", mock_get_user_by_id)
     client = test_app.test_client()
     resp = client.get("/users/999")
@@ -109,15 +111,16 @@ def test_all_users(test_app, monkeypatch):
                 "id": 1,
                 "username": "michael",
                 "email": "michael@mherman.org",
-                "created_date": datetime.now()
+                "created_date": datetime.now(),
             },
             {
                 "id": 1,
                 "username": "fletcher",
                 "email": "fletcher@notreal.com",
-                "created_date": datetime.now()
-            }
+                "created_date": datetime.now(),
+            },
         ]
+
     monkeypatch.setattr(project.api.users, "get_all_users", mock_get_all_users)
     client = test_app.test_client()
     resp = client.get("/users")
@@ -138,15 +141,12 @@ def test_remove_user(test_app, monkeypatch):
 
     def mock_get_user_by_id(user_id):
         result = AttrDict()
-        result.update({
-            "id": 1,
-            "username": "me",
-            "email": "remove-me@gmail.com"
-        })
+        result.update({"id": 1, "username": "me", "email": "remove-me@gmail.com"})
         return result
 
     def mock_delete_user(user):
         return True
+
     monkeypatch.setattr(project.api.users, "get_user_by_id", mock_get_user_by_id)
     monkeypatch.setattr(project.api.users, "delete_user", mock_delete_user)
 
@@ -178,11 +178,7 @@ def test_update_user(test_app, monkeypatch):
 
     def mock_get_user_by_id(user_id):
         result = AttrDict()
-        result.update({
-            "id": 1,
-            "username": "me",
-            "email": "me@gmail.com"
-        })
+        result.update({"id": 1, "username": "me", "email": "me@gmail.com"})
         return result
 
     def mock_update_user(user, username, email):
@@ -219,11 +215,13 @@ def test_update_user(test_app, monkeypatch):
             "User 999 does not exist",
         ],
     ],
-
 )
-def test_update_user_invalid(test_app, monkeypatch, user_id, payload, status_code, message):
+def test_update_user_invalid(
+    test_app, monkeypatch, user_id, payload, status_code, message
+):
     def mock_get_user_by_id(user_id):
         return None
+
     monkeypatch.setattr(project.api.users, "get_user_by_id", mock_get_user_by_id)
     client = test_app.test_client()
     resp = client.put(
