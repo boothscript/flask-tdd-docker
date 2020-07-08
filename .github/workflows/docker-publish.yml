@@ -26,6 +26,17 @@ jobs:
       matrix:
         python-version: [3.8]
 
+    services:
+      postgres:
+        image: postgres
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: users
+          POSTGRES_USER: runner
+          POSTGRES_PASSWORD: runner
+
+
     steps:
       - uses: actions/checkout@v2
 
