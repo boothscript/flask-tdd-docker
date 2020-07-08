@@ -151,7 +151,7 @@ def test_remove_user(test_app, monkeypatch):
     monkeypatch.setattr(project.api.users, "delete_user", mock_delete_user)
 
     client = test_app.test_client()
-    resp = client.delete(f"/users/1")
+    resp = client.delete("/users/1")
     data = json.loads(resp.data.decode())
     assert resp.status_code == 200
     assert "remove-me@gmail.com was removed!" in data["message"]
@@ -189,14 +189,14 @@ def test_update_user(test_app, monkeypatch):
 
     client = test_app.test_client()
     resp_one = client.put(
-        f"/users/1",
+        "/users/1",
         data=json.dumps({"username": "me", "email": "me@gmail.com"}),
         content_type="application/json",
     )
     data = json.loads(resp_one.data.decode())
     assert resp_one.status_code == 200
     assert "1 was updated!" in data["message"]
-    resp_two = client.get(f"/users/1")
+    resp_two = client.get("/users/1")
     data = json.loads(resp_two.data.decode())
     assert resp_two.status_code == 200
     assert "me" in data["username"]
