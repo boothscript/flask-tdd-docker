@@ -38,8 +38,9 @@ jobs:
 
 
   test:
+    needs: build
     runs-on: ubuntu-latest
-    container: docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+    container: docker.pkg.github.com/${{ github.repository }}/flask-tdd-docker:latest
 
     strategy:
       matrix:
