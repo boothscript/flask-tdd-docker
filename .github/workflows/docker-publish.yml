@@ -31,7 +31,7 @@ jobs:
         run: docker pull docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME || true
       - name: Build and tag new image
         run: |
-          docker build --cache-from docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME:latest --tag $IMAGE_NAME --file ./Dockerfile.prod --build-arg SECRET_KEY=$SECRET_KEY .
+          docker build --cache-from docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME:latest --tag $IMAGE_NAME --file ./Dockerfile.prod .
           docker push docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME:latest 
 
 
@@ -55,7 +55,7 @@ jobs:
           POSTGRES_PASSWORD: runner
           DATABASE_TEST_URL: postgres://runner:runner@postgres:5432/users
         run: |
-          docker-compose up -d
+          docker run flask-tdd-docker:latest
           docker-compose exec -T users pip install --upgrade pip
           docker-compose exec -T users pip install -r requirements.txt
           docker-compose exec -T users pip install black flake8 isort pytest
@@ -119,7 +119,7 @@ jobs:
           HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
         run: |
           chmod +x ./release.sh
-          docker build --tag ${HEROKU_REGISTRY_IMAGE} --file ./Dockerfile.prod "."
+          docker build --tag ${HEROKU_REGISTRY_IMAGE} --file ./Dockerfile.prod --build-arg SECRET_KEY=$SECRET_KEY "."
           docker login -u _ -p ${{secrets.HEROKU_API_KEY}} registry.heroku.com
           docker push ${HEROKU_REGISTRY_IMAGE}
           ./release.sh
