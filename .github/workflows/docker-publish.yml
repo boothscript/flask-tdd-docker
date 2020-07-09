@@ -55,14 +55,15 @@ jobs:
           POSTGRES_PASSWORD: runner
           DATABASE_TEST_URL: postgres://runner:runner@postgres:5432/users
         run: |
-          docker run flask-tdd-docker:latest
-          docker-compose exec -T users pip install --upgrade pip
-          docker-compose exec -T users pip install -r requirements.txt
-          docker-compose exec -T users pip install black flake8 isort pytest
-          docker-compose exec -T users pytest "project/tests" -p no:warnings
-          docker-compose exec -T users flake8 project
-          docker-compose exec -T users black project --check
-          docker-compose exec -T users isort project/**/*.py --check-only
+          docker images
+
+        # docker-compose exec -T users pip install --upgrade pip
+        # docker-compose exec -T users pip install -r requirements.txt
+        # docker-compose exec -T users pip install black flake8 isort pytest
+        # docker-compose exec -T users pytest "project/tests" -p no:warnings
+        # docker-compose exec -T users flake8 project
+        # docker-compose exec -T users black project --check
+        # docker-compose exec -T users isort project/**/*.py --check-only
           
         
        
