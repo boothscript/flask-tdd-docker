@@ -66,14 +66,14 @@ jobs:
           POSTGRES_PASSWORD: runner
           DATABASE_TEST_URL: postgres://runner:runner@postgres:5432/users
         run: |
-          docker run  -T -it docker.pkg.github.com/boothscript/flask-tdd-docker/flask-tdd-docker
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install black flake8 isort pytest
-          pytest "project/tests" -p no:warnings
-          flake8 project
-          black project --check
-          isort project/**/*.py --check-only
+          docker run -d -name test-container docker.pkg.github.com/boothscript/flask-tdd-docker/flask-tdd-docker
+          docker container exec -t test-container pip install --upgrade pip
+          docker container exec -t test-container pip install -r requirements.txt
+          docker container exec -t test-container pip install black flake8 isort pytest
+          docker container exec -t test-container pytest "project/tests" -p no:warnings
+          docker container exec -t test-container flake8 project
+          docker container exec -t test-container black project --check
+          docker container exec -t test-container isort project/**/*.py --check-only
           
         
        
