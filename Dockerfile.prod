@@ -43,7 +43,6 @@ ENV SECRET_KEY $SECRET_KEY
 RUN apk update \
     && apk add postgresql-dev gcc python3-dev musl-dev
 
-# install from wheels made in builder
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --upgrade pip
