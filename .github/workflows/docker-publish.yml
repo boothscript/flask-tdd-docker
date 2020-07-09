@@ -42,12 +42,14 @@ jobs:
 
     services:
       postgres:
-        image: postgres:10.8
+        image: postgres
         env:
-          POSTGRES_DB: users
-          POSTGRES_USER: runner
-          POSTGRES_PASSWORD: runner
-          DATABASE_TEST_URL: postgres://runner:runner@postgres:5432/users
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
         ports:
           - 5432:5432
 
@@ -61,10 +63,11 @@ jobs:
 
       - name: Run tests
         env:
+          POSTGRES_HOST: localhost
           POSTGRES_DB: users
-          POSTGRES_USER: runner
-          POSTGRES_PASSWORD: runner
-          DATABASE_TEST_URL: postgres://runner:runner@postgres:5432/users
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgress
+          DATABASE_TEST_URL: localhost://postgres:postgres@postgres:5432/users
         run: |
           docker run -d --name test-container docker.pkg.github.com/boothscript/flask-tdd-docker/flask-tdd-docker
           docker container exec -t test-container pip install --upgrade pip
