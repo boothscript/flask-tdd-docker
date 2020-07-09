@@ -40,6 +40,18 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_DB: users
+          POSTGRES_USER: runner
+          POSTGRES_PASSWORD: runner
+          DATABASE_TEST_URL: postgres://runner:runner@postgres:5432/users
+        ports:
+          - 5432:5432
+        options: -health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - uses: actions/checkout@v2
 
@@ -55,15 +67,14 @@ jobs:
           POSTGRES_PASSWORD: runner
           DATABASE_TEST_URL: postgres://runner:runner@postgres:5432/users
         run: |
-          docker images
-
-        # docker-compose exec -T users pip install --upgrade pip
-        # docker-compose exec -T users pip install -r requirements.txt
-        # docker-compose exec -T users pip install black flake8 isort pytest
-        # docker-compose exec -T users pytest "project/tests" -p no:warnings
-        # docker-compose exec -T users flake8 project
-        # docker-compose exec -T users black project --check
-        # docker-compose exec -T users isort project/**/*.py --check-only
+          docker run -it docker.pkg.github.com/boothscript/flask-tdd-docker/flask-tdd-docker
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install black flake8 isort pytest
+          pytest "project/tests" -p no:warnings
+          flake8 project
+          black project --check
+          isort project/**/*.py --check-only
           
         
        
